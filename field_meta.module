@@ -1,0 +1,119 @@
+<?php
+
+/**
+ * @file field_meta.module
+ * TODO: Enter file description here.
+ */
+
+/**
+ * Implements hook_field_info().
+ */
+function field_meta_field_info() {
+  return array(
+    'content_type' => array(
+      'label' => t('Content type'),
+      'description' => t('This field stores a content type'),
+      'default_widget' => 'options_select',
+      'default_formatter' => 'list_default',
+    ),
+    'vocabulary' => array(
+      'label' => t('Vocabulary'),
+      'description' => t('This field stores a content type'),
+      'default_widget' => 'options_select',
+      'default_formatter' => 'list_default',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_info_alter().
+ */
+function field_meta_field_widget_info_alter(&$info) {
+  $widgets = array(
+    'options_select' => array('content_type', 'vocabulary'),
+  );
+  foreach ($widgets as $widget => $field_types) {
+    $info[$widget]['field types'] = array_merge($info[$widget]['field types'], $field_types);
+  }
+}
+
+/**
+ * Implements hook_options_list().
+ */
+function field_meta_options_list($field, $instance, $entity_type, $entity) {
+  switch ($field['type']) {
+    case 'content_type':
+      return node_type_get_names();
+    case 'vocabulary':
+      return field_meta_get_vocabularies();
+  }
+}
+
+function field_meta_field_formatter_info() {
+  return array(
+    'content_type_default' => array(
+      'label' => t('Default'),
+      'field types' => array('content_type'),
+    ),
+    'vocabulary_default' => array(
+      'label' => t('Default'),
+      'field types' => array('content_type'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function field_meta_field_is_empty($item, $field) {
+  if (empty($item['value']) && (string) $item['value'] !== '0') {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function field_meta_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  switch ($display['type']) {
+    case 'content_type_default':
+      foreach ($items as $delta => $item) {
+        $content_types = node_type_get_names();
+        $machine_name = $item['value']['option'];
+        if (isset($content_types[$machine_name])) {
+          $output = $content_types[$machine_name];
+        }
+        else {
+          $output = '';
+        }
+        $element[$delta] = array('#markup' => $output);
+      }
+      break;
+    case 'vocabulary_default':
+      foreach ($items as $delta => $item) {
+        $vocabularies = field_meta_get_vocabularies();
+        $machine_name = $item['value']['option'];
+        if (isset($vocabularies[$machine_name])) {
+          $output = $vocabularies[$machine_name];
+        }
+        else {
+          $output = '';
+        }
+        $element[$delta] = array('#markup' => $output);
+      }
+      break;
+  }
+}
+
+/**
+ * Return a list of all vocabulary names keyed by the machine name.
+ */
+function field_meta_get_vocabularies() {
+  $vocabularies = taxonomy_get_vocabularies();
+  $vocab_list = array();
+  foreach ($vocabularies as $vocabulary) {
+    $vocab_list[$vocabulary->machine_name] = $vocabulary->name;
+  }
+  return $vocab_list;
+}

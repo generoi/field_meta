@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * Implements hook_field_schema().
+ */
+function field_meta_field_schema($field) {
+  switch ($field['type']) {
+    case 'content_type':
+    case 'vocabulary':
+      $columns = array(
+        'value' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+      );
+      break;
+  }
+  return array(
+    'columns' => $columns,
+    'indexes' => array(
+      'value' => array('value')
+    )
+  );
+}

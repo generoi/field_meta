@@ -1,0 +1,5 @@
+name = Field meta
+description = Add meta fields for things such as content type, vocabulary etc.
+package = custom
+core = 7.x
+files[] = tests/field_meta.test
