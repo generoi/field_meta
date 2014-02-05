@@ -15,12 +15,18 @@ function field_meta_field_info() {
       'description' => t('This field stores a content type'),
       'default_widget' => 'options_select',
       'default_formatter' => 'list_default',
+      'settings' => array(
+        'allowed_values_function' => 'node_type_get_names',
+      ),
     ),
     'vocabulary' => array(
       'label' => t('Vocabulary'),
       'description' => t('This field stores a content type'),
       'default_widget' => 'options_select',
       'default_formatter' => 'list_default',
+      'settings' => array(
+        'allowed_values_function' => 'field_meta_get_vocabularies',
+      ),
     ),
   );
 }
